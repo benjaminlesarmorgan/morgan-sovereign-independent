@@ -1,13 +1,5 @@
 import type { SubscribeEmbeddedPiSessionParams } from "../../pi-embedded-subscribe.types.js";
-
-type IdleAwareAgent = {
-  waitForIdle?: (() => Promise<void>) | undefined;
-};
-
-type ToolResultFlushManager = {
-  flushPendingToolResults?: (() => void) | undefined;
-  clearPendingToolResults?: (() => void) | undefined;
-};
+import type { FlushPendingToolResultsAfterIdleOptions } from "../wait-for-idle-before-flush.js";
 
 export function buildEmbeddedSubscriptionParams(
   params: SubscribeEmbeddedPiSessionParams,
@@ -17,14 +9,11 @@ export function buildEmbeddedSubscriptionParams(
 
 export async function cleanupEmbeddedAttemptResources(params: {
   removeToolResultContextGuard?: () => void;
-  flushPendingToolResultsAfterIdle: (params: {
-    agent: IdleAwareAgent | null | undefined;
-    sessionManager: ToolResultFlushManager | null | undefined;
-    timeoutMs?: number;
-    clearPendingOnTimeout?: boolean;
-  }) => Promise<void>;
-  session?: { agent?: unknown; dispose(): void };
-  sessionManager: unknown;
+  flushPendingToolResultsAfterIdle: (
+    params: FlushPendingToolResultsAfterIdleOptions,
+  ) => Promise<void>;
+  session?: { agent?: FlushPendingToolResultsAfterIdleOptions["agent"]; dispose(): void };
+  sessionManager: FlushPendingToolResultsAfterIdleOptions["sessionManager"];
   releaseWsSession: (sessionId: string) => void;
   sessionId: string;
   bundleLspRuntime?: { dispose(): Promise<void> | void };
@@ -38,8 +27,8 @@ export async function cleanupEmbeddedAttemptResources(params: {
     }
     try {
       await params.flushPendingToolResultsAfterIdle({
-        agent: params.session?.agent as IdleAwareAgent | null | undefined,
-        sessionManager: params.sessionManager as ToolResultFlushManager | null | undefined,
+        agent: params.session?.agent,
+        sessionManager: params.sessionManager,
         clearPendingOnTimeout: true,
       });
     } catch {

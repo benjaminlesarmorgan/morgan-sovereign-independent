@@ -2,7 +2,7 @@ import { describePluginRegistrationContract } from "../../test/helpers/plugins/p
 
 describePluginRegistrationContract({
   pluginId: "google",
-  providerIds: ["google"],
+  providerIds: ["google", "google-gemini-cli"],
   mediaUnderstandingProviderIds: ["google"],
   imageGenerationProviderIds: ["google"],
   videoGenerationProviderIds: ["google"],

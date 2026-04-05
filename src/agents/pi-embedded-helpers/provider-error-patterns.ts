@@ -94,12 +94,18 @@ function resolveProviderRuntimeHooks(): ProviderRuntimeHooks | null {
     return cachedProviderRuntimeHooks;
   }
   try {
-    const loaded = requireProviderRuntime(
-      "../../plugins/provider-runtime.js",
-    ) as unknown as ProviderRuntimeHooks;
+    const loaded = requireProviderRuntime("../../plugins/provider-runtime.js") as unknown;
+    const hooks = loaded as Partial<ProviderRuntimeHooks>;
+    if (
+      typeof hooks.classifyProviderFailoverReasonWithPlugin !== "function" ||
+      typeof hooks.matchesProviderContextOverflowWithPlugin !== "function"
+    ) {
+      cachedProviderRuntimeHooks = null;
+      return cachedProviderRuntimeHooks;
+    }
     cachedProviderRuntimeHooks = {
-      classifyProviderFailoverReasonWithPlugin: loaded.classifyProviderFailoverReasonWithPlugin,
-      matchesProviderContextOverflowWithPlugin: loaded.matchesProviderContextOverflowWithPlugin,
+      classifyProviderFailoverReasonWithPlugin: hooks.classifyProviderFailoverReasonWithPlugin,
+      matchesProviderContextOverflowWithPlugin: hooks.matchesProviderContextOverflowWithPlugin,
     };
   } catch {
     cachedProviderRuntimeHooks = null;

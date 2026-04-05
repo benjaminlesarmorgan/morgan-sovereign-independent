@@ -11,6 +11,7 @@ import {
   normalizeGoogleModelId,
   resolveGoogleGenerativeAiTransport,
 } from "./api.js";
+import { registerGoogleGeminiCliProvider } from "./gemini-cli-provider.js";
 import { isModernGoogleModel, resolveGoogleGeminiForwardCompatModel } from "./provider-models.js";
 import { createGeminiWebSearchProvider } from "./src/gemini-web-search-provider.js";
 import { buildGoogleVideoGenerationProvider } from "./video-generation-provider.js";
@@ -157,11 +158,13 @@ export default definePluginEntry({
       resolveDynamicModel: (ctx) =>
         resolveGoogleGeminiForwardCompatModel({
           providerId: ctx.provider,
+          templateProviderId: "google-gemini-cli",
           ctx,
         }),
       ...GOOGLE_GEMINI_PROVIDER_HOOKS,
       isModernModelRef: ({ modelId }) => isModernGoogleModel(modelId),
     });
+    registerGoogleGeminiCliProvider(api);
     api.registerImageGenerationProvider(createLazyGoogleImageGenerationProvider());
     api.registerMediaUnderstandingProvider(createLazyGoogleMediaUnderstandingProvider());
     api.registerVideoGenerationProvider(buildGoogleVideoGenerationProvider());
